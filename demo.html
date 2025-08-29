@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NovaPop Demo – popups • confirm • prompt • lightbox • tooltips • toasts</title>
+  <style>
+    :root{
+      --bg:#0b0c0f; --fg:#e5e7eb; --muted:#9ca3af; --accent:#4f46e5;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background:var(--bg); color:var(--fg)}
+    header{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;background:linear-gradient(180deg, rgba(11,12,15,.95), rgba(11,12,15,.86));backdrop-filter: blur(6px);z-index:2}
+    header h1{margin:0 0 4px;font-size:22px}
+    header p{margin:0;color:var(--muted)}
+    main{padding:24px 20px;max-width:1100px;margin:0 auto;display:grid;gap:28px}
+    section{border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:18px; background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01))}
+    section h2{margin:0 0 14px;font-size:18px}
+    .row{display:flex;flex-wrap:wrap; gap:10px}
+    button, .btn{appearance:none;cursor:pointer;border:0;border-radius:10px;padding:10px 14px;font-weight:600;background:#1f2937;color:#e7e7e7;transition:transform .12s ease, background .12s ease;user-select:none}
+    button:hover,.btn:hover{transform:translateY(-1px);background:#263244}
+    .accent{background:var(--accent);color:#fff}
+    .danger{background:#ef4444}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .card{padding:12px;border-radius:12px;background:#0f1116;border:1px solid rgba(255,255,255,.06)}
+    .tiny{font-size:12px;color:var(--muted)}
+    code{background:#0f1116;border:1px solid rgba(255,255,255,.06);padding:2px 6px;border-radius:6px}
+    footer{padding:20px;color:var(--muted)}
+    .log{background:#0f1116;border:1px dashed rgba(255,255,255,.12);min-height:80px;border-radius:12px;padding:10px;white-space:pre-wrap}
+    .split{display:grid;grid-template-columns:1fr 1fr; gap:16px}
+    @media (max-width: 900px){ .split{grid-template-columns:1fr;} }
+    .list-demo .item{padding:10px;border-radius:8px;background:#0f1116;border:1px solid rgba(255,255,255,.06);display:inline-block;margin:6px}
+    .inline{display:inline-block}
+    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    a{color:#9ecbff}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>NovaPop – Feature Demo</h1>
+    <p>Popups, confirm, prompt, lightbox, tooltips, toasts, timers, queue, audio controls, and more.</p>
+  </header>
+
+  <!-- Load the library (place novapop.js next to this file) -->
+  <script src="./novapop.js"></script>
+
+  <main>
+    <section id="modals">
+      <h2>Modals</h2>
+      <div class="row">
+        <button id="btn-popup" class="accent">Popup</button>
+        <button id="btn-confirm" class="danger">Confirm</button>
+        <button id="btn-prompt" class="">Prompt (multi-input)</button>
+        <button id="btn-timer" class="">Auto-close (3s timer)</button>
+        <button id="btn-queue" class="">Queue (3 steps)</button>
+        <button id="btn-life" class="">Lifecycle hooks</button>
+        <button id="btn-destroy" class="">destroyAll()</button>
+      </div>
+      <div class="tiny" style="margin-top:8px">Open the DevTools console to see resolved values, or watch the log below.</div>
+      <div id="log" class="log" aria-live="polite"></div>
+    </section>
+
+    <section id="lightbox">
+      <h2>Lightbox</h2>
+      <div class="row">
+        <button id="btn-gallery" class="accent">Open Gallery</button>
+        <button id="btn-gallery2" class="">HTML slide (YouTube embed)</button>
+      </div>
+      <div class="tiny" style="margin-top:8px">Keyboard: &#x2190;/&#x2192; to navigate, ESC to close, swipe on touch.</div>
+    </section>
+
+    <section id="tooltips">
+      <h2>Tooltips</h2>
+      <div class="grid">
+        <div class="card">
+          <div>Basic (hover/focus)</div>
+          <button id="tt-basic" class="inline" style="margin-top:8px">Hover me</button>
+        </div>
+        <div class="card">
+          <div>Follow cursor</div>
+          <button id="tt-follow" class="inline" style="margin-top:8px">Hover me</button>
+        </div>
+        <div class="card">
+          <div>Interactive (you can hover inside)</div>
+          <button id="tt-interactive" class="inline" style="margin-top:8px">Hover me</button>
+        </div>
+        <div class="card">
+          <div>Manual control</div>
+          <div style="margin-top:8px" class="controls">
+            <button id="tt-manual-target">Target</button>
+            <button id="tt-show">Show</button>
+            <button id="tt-hide">Hide</button>
+          </div>
+        </div>
+        <div class="card">
+          <div>Delegate (same config for many)</div>
+          <div id="list" class="list-demo" style="margin-top:8px">
+            <span class="item" data-tip="A">Item A</span>
+            <span class="item" data-tip="B">Item B</span>
+            <span class="item" data-tip="C">Item C</span>
+          </div>
+          <div class="tiny" style="margin-top:6px">All items share one delegated tooltip instance.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="toasts">
+      <h2>Toasts</h2>
+      <div class="row">
+        <button id="t-success" class="accent">Success</button>
+        <button id="t-error" class="danger">Error</button>
+        <button id="t-warn">Warn</button>
+        <button id="t-info">Info (action)</button>
+      </div>
+    </section>
+
+    <section id="audio">
+      <h2>Audio</h2>
+      <div class="controls">
+        <button id="beep">Play beep</button>
+        <button id="url-sound">URL sound</button>
+        <label>Volume <input id="vol" type="range" min="0" max="1" step="0.05" value="1"></label>
+        <label><input id="mute" type="checkbox"> Mute</label>
+      </div>
+      <div class="tiny" style="margin-top:8px">URL demo uses a public domain short beep.</div>
+    </section>
+
+    <section id="theme">
+      <h2>Theming</h2>
+      <div class="row">
+        <button id="theme-dark" class="accent">Dark</button>
+        <button id="theme-light">Light</button>
+        <button id="theme-material">Material-ish</button>
+      </div>
+      <div class="tiny" style="margin-top:8px">These adjust NovaPop’s CSS variables on <code>:root</code>.</div>
+    </section>
+
+    <footer>
+      Built with <code>NovaPop</code> <span id="ver"></span>. Put <code>novapop.js</code> next to this <code>index.html</code> and open in a browser.
+    </footer>
+  </main>
+
+  <script>
+    // Helper: log to page
+    const logBox = document.getElementById('log');
+    function log(msg){
+      const line = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+      console.log(line);
+      logBox.textContent = line + '\\n' + logBox.textContent;
+    }
+
+    // Version
+    document.getElementById('ver').textContent = (window.NovaPop && NovaPop.version) ? ('v' + NovaPop.version) : '';
+
+    // ---- Modals
+    document.getElementById('btn-popup').addEventListener('click', () => {
+      NovaPop.popup({
+        title: 'Hello from NovaPop',
+        html: '<p>This is a sleek, accessible popup with buttons and animation.</p>',
+        animation: 'slide',
+        sound: 'beep',
+        buttons: [
+          { label: 'Cancel', action: 'cancel' },
+          { label: 'Continue', action: 'ok', accent: true }
+        ],
+        onClose: (res) => log('Popup closed with action=' + res.action)
+      });
+    });
+
+    document.getElementById('btn-confirm').addEventListener('click', async () => {
+      const yes = await NovaPop.confirm({
+        title: 'Delete file?',
+        content: 'This cannot be undone.',
+        okText: 'Delete',
+        danger: true,
+        sound: { freq: 520, duration: .08 }
+      });
+      log('Confirm result: ' + yes);
+    });
+
+    document.getElementById('btn-prompt').addEventListener('click', async () => {
+      const data = await NovaPop.prompt({
+        title: 'Create account',
+        inputs: [
+          { type:'text', name:'name',  label:'Name', placeholder:'Ada Lovelace', required:true },
+          { type:'email', name:'email', label:'Email', placeholder:'ada@example.com', required:true },
+          { type:'select', name:'role', label:'Role', options:[{label:'User',value:'user'}, {label:'Admin',value:'admin'}], value:'user' },
+          { type:'radio', name:'plan',  label:'Plan', options:['Free','Pro','Team'], value:'Pro' },
+          { type:'checkbox', name:'tos', label:'Accept Terms?', value:true }
+        ],
+        validate: (d) => {
+          if (!d.name) return 'Name required';
+          if (!d.email || !/\\S+@\\S+\\.\\S+/.test(d.email)) return 'Valid email required';
+        },
+        sound: 'beep'
+      });
+      log('Prompt data: ' + JSON.stringify(data));
+    });
+
+    document.getElementById('btn-timer').addEventListener('click', () => {
+      NovaPop.popup({
+        title: 'Auto-closing…',
+        html: '<p>This will close in 3 seconds.</p>',
+        timer: 3000,
+        timerProgress: true,
+        sound: 'beep'
+      }).then(res => log('Timer popup closed via: ' + res.action));
+    });
+
+    document.getElementById('btn-queue').addEventListener('click', async () => {
+      const results = await NovaPop.queue([
+        { title:'Step 1', html:'First step', buttons:[{label:'Next', action:'ok', accent:true}] },
+        { title:'Step 2', html:'Second step', buttons:[{label:'Next', action:'ok', accent:true}], breakOnCancel:true },
+        { title:'Step 3', html:'Done!', buttons:[{label:'Finish', action:'ok', accent:true}] }
+      ]);
+      log('Queue results: ' + JSON.stringify(results.map(r=>r.action)));
+    });
+
+    document.getElementById('btn-life').addEventListener('click', () => {
+      NovaPop.popup({
+        title: 'Lifecycle demo',
+        html: '<p>Check the log for onOpen/onShown/beforeClose/onClose.</p>',
+        onOpen:  () => log('onOpen fired'),
+        onShown: () => log('onShown fired'),
+        beforeClose: (res) => { log('beforeClose (' + res.action + ')'); /* return false to prevent close */ },
+        onClose: (res) => log('onClose (' + res.action + ')')
+      });
+    });
+
+    document.getElementById('btn-destroy').addEventListener('click', async () => {
+      NovaPop.popup({ title:'Hold on', html:'Opening a gallery too…'});
+      setTimeout(()=>{
+        NovaPop.lightbox({ items:[
+          { src:'https://picsum.photos/seed/x/1200/800', caption:'Random A' },
+          { src:'https://picsum.photos/seed/y/1200/800', caption:'Random B' }
+        ]});
+      }, 250);
+      setTimeout(()=>{
+        NovaPop.destroyAll();
+        log('destroyAll() called');
+      }, 1200);
+    });
+
+    // ---- Lightbox
+    document.getElementById('btn-gallery').addEventListener('click', () => {
+      NovaPop.lightbox({
+        items: [
+          { src: 'https://picsum.photos/seed/1/1400/900', caption:'Photo 1' },
+          { src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', type:'video', caption:'Video clip' },
+          { src: 'https://picsum.photos/seed/2/1400/900', caption:'Photo 2' },
+          { src: 'https://picsum.photos/seed/3/1400/900', caption:'Photo 3' }
+        ],
+        sound: 'beep'
+      });
+    });
+
+    document.getElementById('btn-gallery2').addEventListener('click', () => {
+      const yt = '<div style=\\"width:min(92vw,900px);height:60vh\\"><iframe width=\\"100%\\" height=\\"100%\\" src=\\"https://www.youtube.com/embed/dQw4w9WgXcQ\\" title=\\"YouTube video\\" frameborder=\\"0\\" allow=\\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\\" allowfullscreen></iframe></div>';
+      NovaPop.lightbox({
+        items: [
+          { src: 'https://picsum.photos/seed/9/1400/900', caption:'Cover' },
+          { type:'html', html: yt, caption:'YouTube embed' }
+        ]
+      });
+    });
+
+    // ---- Tooltips
+    NovaPop.tooltip(document.getElementById('tt-basic'), {
+      content: 'Smart tooltip with auto placement',
+      placement: 'auto',
+      theme: 'dark'
+    });
+
+    NovaPop.tooltip(document.getElementById('tt-follow'), {
+      content: 'I follow your cursor',
+      followCursor: true
+    });
+
+    NovaPop.tooltip(document.getElementById('tt-interactive'), {
+      content: 'You can hover over me (interactive)',
+      interactive: true
+    });
+
+    const manualTarget = document.getElementById('tt-manual-target');
+    document.getElementById('tt-show').addEventListener('click', () => {
+      NovaPop.tipShow(manualTarget, { content: 'Shown manually', placement:'bottom' });
+    });
+    document.getElementById('tt-hide').addEventListener('click', () => NovaPop.tipHide());
+
+    // Delegate (same config for many items)
+    NovaPop.tipDelegate(document.getElementById('list'), '.item', {
+      trigger: 'hover',
+      placement: 'top',
+      content: 'Delegated tooltip'
+    });
+
+    // ---- Toasts
+    document.getElementById('t-success').addEventListener('click', () => {
+      NovaPop.toast({ type:'success', message:'Saved successfully!', sound:'beep' });
+    });
+    document.getElementById('t-error').addEventListener('click', () => {
+      NovaPop.toast({ type:'error', message:'Something went wrong.' });
+    });
+    document.getElementById('t-warn').addEventListener('click', () => {
+      NovaPop.toast({ type:'warn', message:'Heads up! This is a warning.' });
+    });
+    document.getElementById('t-info').addEventListener('click', () => {
+      NovaPop.toast({ type:'info', message:'You have unsaved changes.', action:{ label:'Save now', onClick(){ log('Toast action clicked'); } } });
+    });
+
+    // ---- Audio controls
+    document.getElementById('beep').addEventListener('click', () => NovaPop.playSound('beep'));
+    document.getElementById('url-sound').addEventListener('click', () => NovaPop.playSound('https://actions.google.com/sounds/v1/alarms/beep_short.ogg'));
+    document.getElementById('vol').addEventListener('input', (e) => NovaPop.audio({ volume: parseFloat(e.target.value) }));
+    document.getElementById('mute').addEventListener('change', (e) => NovaPop.audio({ mute: e.target.checked }));
+
+    // ---- Theming (change CSS vars on :root)
+    function setTheme(vars){
+      const root = document.documentElement;
+      Object.entries(vars).forEach(([k,v]) => root.style.setProperty(k, v));
+    }
+    document.getElementById('theme-dark').addEventListener('click', () => {
+      setTheme({
+        '--np-bg':'#111','--np-fg':'#fff','--np-accent':'#4f46e5','--np-backdrop':'rgba(0,0,0,.6)',
+        '--np-tooltip-bg':'#111','--np-tooltip-fg':'#fff','--np-toast-bg':'#111','--np-toast-fg':'#fff'
+      });
+    });
+    document.getElementById('theme-light').addEventListener('click', () => {
+      setTheme({
+        '--np-bg':'#ffffff','--np-fg':'#111827','--np-accent':'#2563eb','--np-backdrop':'rgba(0,0,0,.35)',
+        '--np-tooltip-bg':'#111827','--np-tooltip-fg':'#ffffff','--np-toast-bg':'#ffffff','--np-toast-fg':'#111827'
+      });
+    });
+    document.getElementById('theme-material').addEventListener('click', () => {
+      setTheme({
+        '--np-bg':'#121212','--np-fg':'#e6e6e6','--np-accent':'#03dac6','--np-backdrop':'rgba(32,33,36,.7)',
+        '--np-tooltip-bg':'#202124','--np-tooltip-fg':'#e6e6e6','--np-toast-bg':'#202124','--np-toast-fg':'#e6e6e6',
+        '--np-radius':'16px'
+      });
+    });
+  </script>
+</body>
+</html>
